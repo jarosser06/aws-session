@@ -8,6 +8,11 @@ import (
 	"github.com/go-yaml/yaml"
 )
 
+type aliasLocation struct {
+	accountIndex int
+	aliasIndex   int
+}
+
 type Alias struct {
 	AccountNumber int    `yaml:"account_number" required:"true"`
 	DefaultRegion string `yaml:"default_region"`
@@ -15,21 +20,41 @@ type Alias struct {
 	Role          string `yaml:"role" required:"true"`
 }
 
-type Config struct {
+type Account struct {
 	Aliases            []Alias `yaml:"aliases"`
 	AWSAccessKeyId     string  `yaml:"aws_access_key_id" required:"true"`
 	AWSSecretAccessKey string  `yaml:"aws_secret_access_key" required:"true"`
 	MFARole            string  `yaml:"mfa_role" required:"true"`
-	aliasMap           map[string]int
+}
+
+type Config struct {
+	Accounts []Account `yaml:"accounts"`
+	aliasMap map[string]aliasLocation
+}
+
+type SecurityCredentials struct {
+	AWSAccessKeyId     string
+	AWSSecretAccessKey string
+	MFARole            string
 }
 
 // Return an Alias based on the name
-func (c *Config) GetAlias(name string) (*Alias, error) {
-	if alias, ok := c.aliasMap[name]; ok {
-		return &c.Aliases[alias], nil
+func (c *Config) GetAlias(name string) (*Alias, *SecurityCredentials, error) {
+	if location, ok := c.aliasMap[name]; ok {
+		account := c.Accounts[location.accountIndex]
+
+		credentials := &SecurityCredentials{
+			AWSAccessKeyId:     account.AWSAccessKeyId,
+			AWSSecretAccessKey: account.AWSSecretAccessKey,
+			MFARole:            account.MFARole,
+		}
+
+		alias := &account.Aliases[location.aliasIndex]
+
+		return alias, credentials, nil
 	}
 
-	return nil, fmt.Errorf("alias %s does not exist", name)
+	return nil, nil, fmt.Errorf("alias %s does not exist", name)
 }
 
 // Return a slice of Alias names
@@ -70,9 +95,14 @@ func LoadConfig(filePath string) (*Config, error) {
 	}
 
 	// Populate aliasMap
-	config.aliasMap = make(map[string]int)
-	for index, alias := range config.Aliases {
-		config.aliasMap[alias.Name] = index
+	config.aliasMap = make(map[string]aliasLocation)
+	for accountIndex, account := range config.Accounts {
+		for aliasIndex, alias := range account.Aliases {
+			config.aliasMap[alias.Name] = aliasLocation{
+				accountIndex: accountIndex,
+				aliasIndex:   aliasIndex,
+			}
+		}
 	}
 
 	return &config, nil

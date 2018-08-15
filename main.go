@@ -40,7 +40,7 @@ func webCommand(c *cli.Context) error {
 		return fmt.Errorf("alias flag can not be empty")
 	}
 
-	alias, err := config.GetAlias(aliasName)
+	alias, credentials, err := config.GetAlias(aliasName)
 	if err != nil {
 		return err
 	}
@@ -54,12 +54,12 @@ func webCommand(c *cli.Context) error {
 	}
 
 	input := webOutInput{
-		AWSAccessKeyID:     config.AWSAccessKeyId,
-		AWSSecretAccessKey: config.AWSSecretAccessKey,
+		AWSAccessKeyID:     credentials.AWSAccessKeyId,
+		AWSSecretAccessKey: credentials.AWSSecretAccessKey,
 		AccountName:        alias.Name,
 		AWSAccountNumber:   strconv.Itoa(alias.AccountNumber),
 		RoleName:           alias.Role,
-		MFADeviceID:        config.MFARole,
+		MFADeviceID:        credentials.MFARole,
 		TokenCode:          mfaTok,
 		SessionName:        c.String("session-name"),
 		Duration:           c.Int("duration"),
@@ -86,7 +86,7 @@ func authCommand(c *cli.Context) error {
 		return fmt.Errorf("alias flag can not be empty")
 	}
 
-	alias, err := config.GetAlias(aliasName)
+	alias, credentials, err := config.GetAlias(aliasName)
 	if err != nil {
 		return err
 	}
@@ -100,12 +100,12 @@ func authCommand(c *cli.Context) error {
 	}
 
 	input := credentialsOutInput{
-		AWSAccessKeyID:     config.AWSAccessKeyId,
-		AWSSecretAccessKey: config.AWSSecretAccessKey,
+		AWSAccessKeyID:     credentials.AWSAccessKeyId,
+		AWSSecretAccessKey: credentials.AWSSecretAccessKey,
 		AccountName:        alias.Name,
 		AWSAccountNumber:   strconv.Itoa(alias.AccountNumber),
 		RoleName:           alias.Role,
-		MFADeviceID:        config.MFARole,
+		MFADeviceID:        credentials.MFARole,
 		TokenCode:          mfaTok,
 		SessionName:        c.String("session-name"),
 		Duration:           c.Int("duration"),
