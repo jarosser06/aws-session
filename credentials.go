@@ -272,6 +272,10 @@ func credentialOut(input credentialsOutInput) (string, error) {
 		tmplVariables.Delimiter = " = '"
 		tmplVariables.Prefix = "$env:"
 		tmplVariables.Suffix = "'\n"
+	case "docker":
+		tmplVariables.Delimiter = "="
+		tmplVariables.Prefix = " -e "
+		tmplVariables.Suffix = ""
 	case "cmd":
 		tmplVariables.Delimiter = "="
 		tmplVariables.Prefix = "set "

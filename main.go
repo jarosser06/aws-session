@@ -110,6 +110,7 @@ func authCommand(c *cli.Context) error {
 		SessionName:        c.String("session-name"),
 		Duration:           c.Int("duration"),
 		Region:             c.String("region"),
+		UserShell:          c.String("format"),
 	}
 
 	out, err := credentialOut(input)
@@ -140,7 +141,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "aws-session"
-	app.Version = "0.1.0"
+	app.Version = "0.2.0"
 	app.Usage = "Provides an easy way to assume roles"
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -165,6 +166,11 @@ func main() {
 					Value:  "",
 					Usage:  "Account Alias to fetch credentials for",
 					EnvVar: "TOK_ALIAS",
+				},
+				cli.StringFlag{
+					Name:  "format, F",
+					Value: "",
+					Usage: "Format to expose secrets in Must be one of powershell, cmd, docker, bash.",
 				},
 				cli.StringFlag{
 					Name:   "token-code, T",
