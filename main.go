@@ -92,7 +92,7 @@ func authCommand(c *cli.Context) error {
 	}
 
 	mfaTok := c.String("token-code")
-	if mfaTok == "" {
+	if mfaTok == "" && credentials.MFARole != "" {
 		mfaTok, err = promptMFAToken()
 		if err != nil {
 			return err

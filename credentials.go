@@ -81,7 +81,11 @@ func detectShell() string {
 
 // Generate Session Name
 func generateSessionName(roleName, mfaDeviceID string) string {
-	userName := strings.Split(mfaDeviceID, "mfa/")[1]
+	userName := ""
+	if mfaDeviceID != "" {
+		userName = strings.Split(mfaDeviceID, "mfa/")[1]
+	}
+
 	timestamp := time.Now().Unix()
 
 	return fmt.Sprintf("%s@%s_%d", userName, roleName, timestamp)
@@ -141,8 +145,11 @@ func assumeRole(input assumeRoleInput) (*sts.AssumeRoleOutput, error) {
 		DurationSeconds: aws.Int64(int64(input.Duration)),
 		RoleArn:         aws.String(roleArn),
 		RoleSessionName: aws.String(sessionName),
-		SerialNumber:    aws.String(input.MFADeviceID),
-		TokenCode:       aws.String(input.TokenCode),
+	}
+
+	if input.MFADeviceID != "" {
+		stsInput.SerialNumber = aws.String(input.MFADeviceID)
+		stsInput.TokenCode = aws.String(input.TokenCode)
 	}
 
 	return svc.AssumeRole(stsInput)
