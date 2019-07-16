@@ -1,15 +1,23 @@
-INSTALLPRE = /usr/local
-BINARY_NAME = aws-session
-SUPPORTED_SYSTEMS = linux darwin
+COMMAND_NAME = aws-session
+SUPPORTED_SYSTEMS = linux darwin windows
 RELEASE = $(shell git describe --always --tags)
 GOLIST = $(shell go list ./... | grep -v /vendor/)
+BUILDS_DIR = bin
+
+ifeq ($(OS), Windows_NT)
+	BINARY_NAME = $(COMMAND_NAME).exe
+	INSTALLPRE = "c:\aws-session\bin"
+else
+	BINARY_NAME = $(COMMAND_NAME)
+	INSTALL_PRE = /usr/local/bin
+endif
 
 all: build
 
-build: bin/aws-session
-bin/aws-session:
+build: ${BUILDS_DIR}/${BINARY_NAME}
+${BUILDS_DIR}/${BINARY_NAME}:
 		@echo "Building binary..."
-		go build -o bin/${BINARY_NAME}
+		go build -o ${BUILDS_DIR}/${BINARY_NAME}
 
 test:
 		@test -z "$(gofmt -s -l . | tee /dev/stderr)"
@@ -25,18 +33,23 @@ rebuild: clean build
 
 install:
 		@echo "Installing..."
-		cp bin/aws-session $(INSTALLPRE)/bin/
+		cp ${BUILDS_DIR}/${BINARY_NAME} $(INSTALLPRE)/
 
-cross_compile: linux darwin
+cross_compile: linux darwin windows
 
-linux: bin/linux/aws-session
-bin/linux/aws-session:
-		@mkdir -p bin/linux
-		GOOS=linux go build -v -o bin/linux/aws-session
+linux: ${BUILDS_DIR}/linux/${COMMAND_NAME}
+${BUILDS_DIR}/linux/${COMMAND_NAME}:
+		@mkdir -p ${BUILDS_DIR}/linux
+		GOOS=linux go build -v -o bin/linux/${COMMAND_NAME}
 
-darwin: bin/darwin/aws-session
-bin/darwin/aws-session:
-		@mkdir -p bin/aws-session
-		GOOS=darwin go build -v -o bin/darwin/aws-session
+darwin: ${BUILDS_DIR}/darwin/${COMMAND_NAME}
+${BUILDS_DIR}/darwin/${COMMAND_NAME}:
+		@mkdir -p ${BUILDS_DIR}/darwin
+		GOOS=darwin go build -v -o ${BUILDS_DIR}/darwin/${COMMAND_NAME}
 
-.PHONY: linux darwin cross_compile rebuild
+windows: ${BUILDS_DIR}/windows/${COMMAND_NAME}.exe
+${BUILDS_DIR}/windows/${COMMAND_NAME}.exe:
+		@mkdir -p bin/windows
+		GOOS=windows go build -v -o ${BUILDS_DIR}/windows/${COMMAND_NAME}.exe
+
+.PHONY: linux darwin windows cross_compile rebuild
