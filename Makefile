@@ -3,6 +3,7 @@ SUPPORTED_SYSTEMS = linux darwin windows
 RELEASE = $(shell git describe --always --tags)
 GOLIST = $(shell go list ./... | grep -v /vendor/)
 BUILDS_DIR = bin
+LDFLAGS = "-X main.Version=${RELEASE}"
 
 ifeq ($(OS), Windows_NT)
 	BINARY_NAME = $(COMMAND_NAME).exe
@@ -17,7 +18,7 @@ all: build
 build: ${BUILDS_DIR}/${BINARY_NAME}
 ${BUILDS_DIR}/${BINARY_NAME}:
 		@echo "Building binary..."
-		go build -o ${BUILDS_DIR}/${BINARY_NAME}
+		go build -ldflags ${LDFLAGS} -o ${BUILDS_DIR}/${BINARY_NAME}
 
 test:
 		@test -z "$(gofmt -s -l . | tee /dev/stderr)"
@@ -40,16 +41,20 @@ cross_compile: linux darwin windows
 linux: ${BUILDS_DIR}/linux/${COMMAND_NAME}
 ${BUILDS_DIR}/linux/${COMMAND_NAME}:
 		@mkdir -p ${BUILDS_DIR}/linux
-		GOOS=linux go build -v -o bin/linux/${COMMAND_NAME}
+		GOOS=linux go build -v -ldflags ${LDFLAGS} -o bin/linux/${COMMAND_NAME}
 
 darwin: ${BUILDS_DIR}/darwin/${COMMAND_NAME}
 ${BUILDS_DIR}/darwin/${COMMAND_NAME}:
 		@mkdir -p ${BUILDS_DIR}/darwin
-		GOOS=darwin go build -v -o ${BUILDS_DIR}/darwin/${COMMAND_NAME}
+		GOOS=darwin go build -v -ldflags ${LDFLAGS} -o ${BUILDS_DIR}/darwin/${COMMAND_NAME}
 
 windows: ${BUILDS_DIR}/windows/${COMMAND_NAME}.exe
 ${BUILDS_DIR}/windows/${COMMAND_NAME}.exe:
 		@mkdir -p bin/windows
-		GOOS=windows go build -v -o ${BUILDS_DIR}/windows/${COMMAND_NAME}.exe
+		GOOS=windows go build -v -ldflags ${LDFLAGS} -o ${BUILDS_DIR}/windows/${COMMAND_NAME}.exe
+
+release: cross_compile
+		@mkdir -p releases
+		./.release.sh
 
 .PHONY: linux darwin windows cross_compile rebuild

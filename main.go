@@ -9,6 +9,8 @@ import (
 	"github.com/urfave/cli"
 )
 
+var Version = ""
+
 func webCommand(c *cli.Context) error {
 	config, err := LoadConfig(c.GlobalString("config"))
 	if err != nil {
@@ -119,7 +121,7 @@ func listCommand(c *cli.Context) error {
 func main() {
 	app := cli.NewApp()
 	app.Name = "aws-session"
-	app.Version = "0.2.0"
+	app.Version = Version
 	app.Usage = "Provides an easy way to assume roles"
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
