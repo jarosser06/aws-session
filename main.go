@@ -4,30 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"strconv"
-	"syscall"
 
 	"github.com/urfave/cli"
-	"golang.org/x/crypto/ssh/terminal"
 )
-
-func promptMFAToken() (string, error) {
-	// Using dev tty
-	tty, err := os.OpenFile("/dev/tty", os.O_RDWR|syscall.O_NOCTTY, 0)
-	if err != nil {
-		return "", err
-	}
-
-	fmt.Fprintf(tty, "MFA Token: ")
-	pass, err := terminal.ReadPassword(int(tty.Fd()))
-	if err != nil {
-		return string(pass), err
-	}
-
-	fmt.Fprintln(tty)
-	return string(pass), nil
-}
 
 func webCommand(c *cli.Context) error {
 	config, err := LoadConfig(c.GlobalString("config"))
@@ -137,8 +117,6 @@ func listCommand(c *cli.Context) error {
 }
 
 func main() {
-	defaultConfigPath := path.Join(os.Getenv("HOME"), ".tok/config")
-
 	app := cli.NewApp()
 	app.Name = "aws-session"
 	app.Version = "0.2.0"
@@ -146,7 +124,7 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:   "config, c",
-			Value:  defaultConfigPath,
+			Value:  defaultConfig(),
 			Usage:  "Tok config",
 			EnvVar: "TOK_CONFIG",
 		},
