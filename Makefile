@@ -29,6 +29,7 @@ test:
 clean:
 		@echo "Cleaning up..."
 		rm -rf bin
+		rm -rf releases
 
 rebuild: clean build
 
