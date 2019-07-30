@@ -8,7 +8,7 @@ import (
 	"github.com/go-yaml/yaml"
 )
 
-const ConfigFilename = "aws-session/config.yaml"
+const ConfigFilename = ".aws-session/config.yaml"
 
 type aliasLocation struct {
 	accountIndex int

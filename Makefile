@@ -7,7 +7,7 @@ LDFLAGS = "-X main.Version=${RELEASE}"
 
 ifeq ($(OS), Windows_NT)
 	BINARY_NAME = $(COMMAND_NAME).exe
-	INSTALLPRE = "c:\aws-session\bin"
+	INSTALL_PRE = "c:\aws-session\bin"
 else
 	BINARY_NAME = $(COMMAND_NAME)
 	INSTALL_PRE = /usr/local/bin
@@ -35,7 +35,7 @@ rebuild: clean build
 
 install:
 		@echo "Installing..."
-		cp ${BUILDS_DIR}/${BINARY_NAME} $(INSTALLPRE)/
+		cp ${BUILDS_DIR}/${BINARY_NAME} $(INSTALL_PRE)/
 
 cross_compile: linux darwin windows
 
