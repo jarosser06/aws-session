@@ -81,6 +81,11 @@ func authCommand(c *cli.Context) error {
 		}
 	}
 
+	region := c.String("region")
+	if alias.DefaultRegion != "" {
+		region = alias.DefaultRegion
+	}
+
 	input := credentialsOutInput{
 		AWSAccessKeyID:     credentials.AWSAccessKeyId,
 		AWSSecretAccessKey: credentials.AWSSecretAccessKey,
@@ -91,7 +96,7 @@ func authCommand(c *cli.Context) error {
 		TokenCode:          mfaTok,
 		SessionName:        c.String("session-name"),
 		Duration:           c.Int("duration"),
-		Region:             c.String("region"),
+		Region:             region,
 		UserShell:          c.String("format"),
 	}
 
